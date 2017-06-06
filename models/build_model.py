@@ -23,24 +23,24 @@ def build_model(model):
     z_mu, z_sigma = model.encoder(augmented)
     model.z_ = reparameterize(z_mu, z_sigma)
     model.image_ = model.decoder(model.z_)
-    print model.image_.get_shape().as_list()
 
     recon_loss = -tf.reduce_mean(tf.reduce_sum(tf.reduce_sum(
         model.image * tf.log(1e-10 + model.image_) + \
         (1-model.image) * tf.log(1e-10 + 1 - model.image_), 1), 1))
     # bernoulli
-    kl_div = 0.5*tf.reduce_mean(tf.reduce_sum(z_sigma + z_mu**2 -  tf.log(z_sigma), 1))
+    kl_div = 0.5*tf.reduce_mean(tf.reduce_sum(z_sigma + z_mu**2 -  tf.log(1e-10 + z_sigma), 1))
     loss = recon_loss + kl_div
 
     # optimizer
     model.get_vars()
-    opt = tf.train.AdamOptimizer(config.learning_rate)
+    opt = tf.train.MomentumOptimizer(config.learning_rate, momentum=0.9)
     optimize = slim.learning.create_train_op(loss, opt, variables_to_train=tf.trainable_variables())
 
     # logging
     tf.summary.scalar("recon_loss", recon_loss)
     tf.summary.scalar("kl_div", kl_div)
     tf.summary.scalar("loss", loss)
+    [tf.summary.histogram(x.name, x) for x in tf.trainable_variables()]
     model.recon_loss = recon_loss
     model.kl_div = kl_div
     model.loss = loss

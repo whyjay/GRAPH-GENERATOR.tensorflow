@@ -34,7 +34,7 @@ def train(model, sess):
                 epoch = int(idx*model.batch_size/N)
                 print_time = time.time()
                 total_time = print_time - start_time
-                sec_per_epoch = (print_time - start_time) / epoch
+                sec_per_epoch = (print_time - start_time)
                 #_save_samples(model, sess, epoch)
                 model.save(sess, model.checkpoint_dir, epoch)
 
