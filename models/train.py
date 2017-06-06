@@ -25,6 +25,7 @@ def train(model, sess):
             batch_start_time = time.time()
 
             image = dataset.next_batch(model.batch_size)
+            image = np.reshape(image, [model.batch_size, model.image_shape[0], model.image_shape[1], 1])
             _, summary = sess.run([optim, merged_sum], feed_dict={model.image:image})
             model.writer.add_summary(summary, idx)
 
@@ -37,7 +38,7 @@ def train(model, sess):
                 #_save_samples(model, sess, epoch)
                 model.save(sess, model.checkpoint_dir, epoch)
 
-                print '[Epoch %(epoch)d] time: %(total_time)4.4f, loss_real: %(loss_real).8f, loss_fake: %(loss_fake).8f, sec_per_epoch: %(sec_per_epoch)4.4f' % locals()
+                print '[Epoch %(epoch)d] time: %(total_time)4.4f, sec_per_epoch: %(sec_per_epoch)4.4f' % locals()
 
     except tf.errors.OutOfRangeError:
         print "Done training; epoch limit reached."

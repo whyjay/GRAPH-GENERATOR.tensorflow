@@ -8,7 +8,7 @@ def base_g_zx(model, z, reuse=False):
     if model.dataset_name == 'mnist':
         n_layer = 2
     else:
-        n_layer = 4
+        n_layer = 5
 
     bs = model.batch_size
     w_start = model.image_shape[0]/2**(n_layer)
@@ -23,20 +23,20 @@ def base_g_zx(model, z, reuse=False):
 
         for i in range(1, n_layer):
             c = c_start*2**i
-            h = slim.conv2d_transpose(h, c, 2, 1, activation_fn=tf.nn.relu, normalizer_fn=slim.batch_norm)
+            h = slim.conv2d_transpose(h, c, 2, 2, activation_fn=tf.nn.relu, normalizer_fn=slim.batch_norm)
             height, width = h.get_shape().as_list()[1:3]
             #h = tf.image.resize_nearest_neighbor(h, [2*height, 2*width])
             #h = slim.conv2d(h, c, [2, 2], 2, activation_fn=tf.nn.relu, normalizer_fn=slim.batch_norm)
 
         i += 1
         c = c_start*2**i
-        return slim.conv2d_transpose(h, model.c_dim, 2, 1, activation_fn=tf.nn.sigmoid)#, normalizer_fn=slim.batch_norm)
+        return slim.conv2d_transpose(h, model.c_dim, 2, 2, activation_fn=tf.nn.sigmoid)#, normalizer_fn=slim.batch_norm)
 
 def base_g_xz(model, x, reuse=False):
     if model.dataset_name == 'mnist':
         n_layer = 2
     else:
-        n_layer = 4
+        n_layer = 5
 
     bs = model.batch_size
 

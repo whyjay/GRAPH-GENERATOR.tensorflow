@@ -26,6 +26,7 @@ from six.moves import xrange  # pylint: disable=redefined-builtin
 
 from tensorflow.contrib.learn.python.learn.datasets import base
 from tensorflow.python.framework import dtypes
+import os
 
 
 class DataSet(object):
@@ -111,7 +112,7 @@ class DataSet(object):
       self._index_in_epoch = batch_size
       assert batch_size <= self._num_examples
     end = self._index_in_epoch
-    return self._images[start:end], self._labels[start:end]
+    return self._images[start:end]
 
 
 def read_data_sets(train_dir,
@@ -121,12 +122,12 @@ def read_data_sets(train_dir,
                    reshape=True,
                    validation_size=5000):
 
-  with open(os.path.join(train_dir, 'adj_mat.npy')) as f:
+  with open(os.path.join(train_dir, 'ordered_subgraph.npy')) as f:
     train_images = numpy.load(f)
     train_labels = numpy.zeros(train_images.shape[0])
 
   train = DataSet(train_images, train_labels, dtype=dtype, reshape=reshape)
-  return base.Datasets(train=train, validation=validation, test=test)
+  return base.Datasets(train=train, validation=None, test=None)
 
 
 def load_sna(train_dir='./data'):

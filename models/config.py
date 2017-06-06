@@ -20,7 +20,7 @@ class Config(object):
         timestamp = str(int(time.time()))
         self.exp_num = str(FLAGS.exp)
         self.dataset = FLAGS.dataset
-        self.dataset_path = os.path.join("./dataset/", self.dataset)
+        self.dataset_path = os.path.join("/data1/common_datasets/sna_data", self.dataset)
         self.devices = ["gpu:0", "gpu:1", "gpu:2", "gpu:3"]
 
         self.add_noise = True
@@ -45,7 +45,7 @@ class Config(object):
         self.loss = FLAGS.loss
 
         # Learning rate
-        self.learning_rate=0.0002
+        self.learning_rate=0.001
 
 
         self.noise_stddev = 0.3
@@ -53,6 +53,7 @@ class Config(object):
         self.y_dim=1
         self.image_size=128
         self.image_shape=[128, 128, 1]
+        self.f_dim=1
         self.c_dim=1
         self.z_dim=256 # 256, 10
 

@@ -38,7 +38,7 @@ class GAN(object):
 
     def save(self, sess, checkpoint_dir, step):
         model_name = "GAN.model"
-        model_dir = "%s_%s_%s" % (self.batch_size, self.config.learning_rate, self.config.discriminator_learning_rate)
+        model_dir = "%s_%s" % (self.batch_size, self.config.learning_rate)
         checkpoint_dir = os.path.join(checkpoint_dir, model_dir)
 
         if not os.path.exists(checkpoint_dir):
@@ -51,7 +51,7 @@ class GAN(object):
     def load(self, sess, checkpoint_dir):
         print(" [*] Reading checkpoints...")
 
-        model_dir = "%s_%s_%s" % (self.batch_size, self.config.learning_rate, self.config.discriminator_learning_rate)
+        model_dir = "%s_%s_" % (self.batch_size, self.config.learning_rate)
         checkpoint_dir = os.path.join(checkpoint_dir, model_dir)
 
         ckpt = tf.train.get_checkpoint_state(checkpoint_dir)
