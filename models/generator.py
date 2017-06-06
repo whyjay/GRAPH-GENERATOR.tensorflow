@@ -24,13 +24,22 @@ def base_g_zx(model, z, reuse=False):
         for i in range(1, n_layer):
             c = c_start*2**i
             h = slim.conv2d_transpose(h, c, 2, 2, activation_fn=tf.nn.relu, normalizer_fn=slim.batch_norm)
+            h_tr1 = tf.transpose(h, perm=[0,3,1,2])
+            h_tr2 = tf.transpose(h, perm=[0,3,2,1])
+            w = slim.conv2d(h, c, 1, 1, activation_fn=None, normalizer_fn=slim.batch_norm)
+            w_tr = tf.transpose(w, perm=[0,3,1,2])
+            h = tf.matmul(w_tr, h_tr1 + h_tr2)
+            h = tf.transpose(h, perm=[0,2,3,1])
+            h = tf.nn.relu(h)
+            #h = slim.conv2d_transpose(h, c, 2, 1, activation_fn=tf.nn.relu, normalizer_fn=slim.batch_norm)
             height, width = h.get_shape().as_list()[1:3]
             #h = tf.image.resize_nearest_neighbor(h, [2*height, 2*width])
             #h = slim.conv2d(h, c, [2, 2], 2, activation_fn=tf.nn.relu, normalizer_fn=slim.batch_norm)
 
         i += 1
         c = c_start*2**i
-        return slim.conv2d_transpose(h, model.c_dim, 2, 2, activation_fn=tf.nn.sigmoid)#, normalizer_fn=slim.batch_norm)
+        h = slim.conv2d_transpose(h, model.c_dim, 2, 2, activation_fn=None)#tf.nn.sigmoid)
+        return tf.nn.sigmoid(h), h#, normalizer_fn=slim.batch_norm)
 
 def base_g_xz(model, x, reuse=False):
     if model.dataset_name == 'mnist':
@@ -46,6 +55,14 @@ def base_g_xz(model, x, reuse=False):
         for i in range(n_layer):
             input_channel = h.get_shape().as_list()[-1]
             h = slim.conv2d(h, input_channel*2, 2, 2, activation_fn=lrelu, normalizer_fn=slim.batch_norm)
+            #h = slim.conv2d(h, input_channel*2, 3, 1, activation_fn=lrelu, normalizer_fn=slim.batch_norm)
+            h_tr1 = tf.transpose(h, perm=[0,3,1,2])
+            h_tr2 = tf.transpose(h, perm=[0,3,2,1])
+            w = slim.conv2d(h, input_channel*2, 1, 1, activation_fn=None, normalizer_fn=slim.batch_norm)
+            w_tr = tf.transpose(w, perm=[0,3,1,2])
+            h = tf.matmul(w_tr, h_tr1 + h_tr2)
+            h = tf.transpose(h, perm=[0,2,3,1])
+            h = lrelu(h)
 
         h = tf.reshape(h, [bs, -1])
         h = slim.fully_connected(h, model.z_dim*16, activation_fn=tf.nn.relu, normalizer_fn=slim.batch_norm)

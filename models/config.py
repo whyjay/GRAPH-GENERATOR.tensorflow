@@ -45,7 +45,7 @@ class Config(object):
         self.loss = FLAGS.loss
 
         # Learning rate
-        self.learning_rate=0.001
+        self.learning_rate=1e-8
 
 
         self.noise_stddev = 0.3
@@ -57,7 +57,7 @@ class Config(object):
         self.c_dim=1
         self.z_dim=256 # 256, 10
 
-        self.sample_size=10*self.batch_size
+        self.sample_size=1*self.batch_size
 
     def print_config(self):
         dicts = self.__dict__
