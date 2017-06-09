@@ -25,7 +25,7 @@ def base_g_zx(model, z, reuse=False):
             c = c_start/2**i
             h = slim.conv2d_transpose(h, c, 2, 2, activation_fn=tf.nn.relu, normalizer_fn=slim.batch_norm)
             w = slim.conv2d(h, c, 1, 1, activation_fn=None, normalizer_fn=slim.batch_norm)
-            h = tf.matmul(w, tf.transpose(h, perm=[0,3,1,2]))
+            h = tf.matmul(tf.transpose(w, perm=[0,3,1,2]), tf.transpose(h, perm=[0,3,1,2]))
             h = tf.transpose(h, perm=[0,2,3,1]) + tf.transpose(h, perm=[0,3,2,1])
             h = tf.nn.relu(h)
             #h = slim.conv2d_transpose(h, c, 2, 1, activation_fn=tf.nn.relu, normalizer_fn=slim.batch_norm)
