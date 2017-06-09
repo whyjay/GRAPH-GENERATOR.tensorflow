@@ -22,14 +22,11 @@ def base_g_zx(model, z, reuse=False):
         h = tf.reshape(h, [-1, w_start, w_start, c_start])
 
         for i in range(1, n_layer):
-            c = c_start*2**i
+            c = c_start/2**i
             h = slim.conv2d_transpose(h, c, 2, 2, activation_fn=tf.nn.relu, normalizer_fn=slim.batch_norm)
-            h_tr1 = tf.transpose(h, perm=[0,3,1,2])
-            h_tr2 = tf.transpose(h, perm=[0,3,2,1])
             w = slim.conv2d(h, c, 1, 1, activation_fn=None, normalizer_fn=slim.batch_norm)
-            w_tr = tf.transpose(w, perm=[0,3,1,2])
-            h = tf.matmul(w_tr, h_tr1 + h_tr2)
-            h = tf.transpose(h, perm=[0,2,3,1])
+            h = tf.matmul(w, tf.transpose(h, perm=[0,3,1,2]))
+            h = tf.transpose(h, perm=[0,2,3,1]) + tf.transpose(h, perm=[0,3,2,1])
             h = tf.nn.relu(h)
             #h = slim.conv2d_transpose(h, c, 2, 1, activation_fn=tf.nn.relu, normalizer_fn=slim.batch_norm)
             height, width = h.get_shape().as_list()[1:3]
@@ -37,7 +34,6 @@ def base_g_zx(model, z, reuse=False):
             #h = slim.conv2d(h, c, [2, 2], 2, activation_fn=tf.nn.relu, normalizer_fn=slim.batch_norm)
 
         i += 1
-        c = c_start*2**i
         h = slim.conv2d_transpose(h, model.c_dim, 2, 2, activation_fn=None)#tf.nn.sigmoid)
         return tf.nn.sigmoid(h), h#, normalizer_fn=slim.batch_norm)
 

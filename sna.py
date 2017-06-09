@@ -122,7 +122,7 @@ def read_data_sets(train_dir,
                    reshape=True,
                    validation_size=5000):
 
-  with open(os.path.join(train_dir, 'ordered_subgraph.npy')) as f:
+  with open(os.path.join(train_dir, 'ordered_subgraph_rw1.npy')) as f:
     train_images = numpy.load(f)
     train_labels = numpy.zeros(train_images.shape[0])
 
