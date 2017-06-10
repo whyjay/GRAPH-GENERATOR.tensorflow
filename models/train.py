@@ -20,22 +20,28 @@ def train(model, sess):
     print "[*] Traing Start : N=%d, Batch=%d, epoch=%d, max_iter=%d" \
         %(N, model.batch_size, model.config.epoch, max_iter)
 
+    lr_mult_ = 1.0
     try:
-        for idx in xrange(1, max_iter):
+        for idx in xrange(max_iter):
             batch_start_time = time.time()
+            kl_mult_ = min(1.0, idx * 1e-4)
+            lr_mult_ = lr_mult_ * 0.9999
 
             image = dataset.next_batch(model.batch_size)
             image = np.reshape(image, [model.batch_size, model.image_shape[0], model.image_shape[1], 1])
-            _, summary = sess.run([optim, merged_sum], feed_dict={model.image:image})
-            model.writer.add_summary(summary, idx)
+            _, summary = sess.run([optim, merged_sum], feed_dict={model.image:image,
+                                                                  model.kl_mult:kl_mult_,
+                                                                  model.lr_mult:lr_mult_})
+            if idx % 10 == 0:
+                model.writer.add_summary(summary, idx)
 
             # save checkpoint
-            if (idx*model.batch_size) % N < model.batch_size:
+            if (idx*model.batch_size) % N < model.batch_size and idx > 0:
                 epoch = int(idx*model.batch_size/N)
                 print_time = time.time()
                 total_time = print_time - start_time
                 sec_per_epoch = (print_time - start_time)
-                #_save_samples(model, sess, epoch)
+                _save_samples(model, sess, epoch, dataset)
                 model.save(sess, model.checkpoint_dir, epoch)
 
                 print '[Epoch %(epoch)d] time: %(total_time)4.4f, sec_per_epoch: %(sec_per_epoch)4.4f' % locals()
@@ -48,28 +54,22 @@ def train(model, sess):
     coord.join(threads)
     sess.close()
 
-def _save_samples(model, sess, epoch):
-    samples = []
-    noises = []
+def _save_samples(model, sess, epoch, dataset):
 
     # generator hard codes the batch size
     for i in xrange(model.sample_size // model.batch_size):
-        gen_image, noise = sess.run(
-            [model.gen_image, model.z])
-        samples.append(gen_image)
-        noises.append(noise)
+      image = dataset.next_batch(model.batch_size)
+      image = np.reshape(image, [model.batch_size, model.image_shape[0], model.image_shape[1], 1])
+      gt, rec, img = sess.run([model.image, model.image_, model.gen_image], feed_dict={model.image:image})
 
-    samples = np.concatenate(samples, axis=0)
-    noises = np.concatenate(noises, axis=0)
-
-    assert samples.shape[0] == model.sample_size
-    save_images(samples, [8, 8], os.path.join(model.sample_dir, 'samples_%s.png' % (epoch)))
 
     print  "Save Samples at %s/%s" % (model.sample_dir, 'samples_%s' % (epoch))
+    with open(os.path.join(model.sample_dir, 'samples_gt_%d.npy'%(epoch)), 'w') as f:
+        np.save(f, gt)
+    with open(os.path.join(model.sample_dir, 'samples_rec_%d.npy'%(epoch)), 'w') as f:
+        np.save(f, rec)
     with open(os.path.join(model.sample_dir, 'samples_%d.npy'%(epoch)), 'w') as f:
-        np.save(f, samples)
-    with open(os.path.join(model.sample_dir, 'noises_%d.npy'%(epoch)), 'w') as f:
-        np.save(f, noises)
+        np.save(f, img)
 
 def init_training(model, sess):
     config = model.config

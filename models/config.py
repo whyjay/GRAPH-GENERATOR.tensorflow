@@ -45,11 +45,11 @@ class Config(object):
         self.loss = FLAGS.loss
 
         # Learning rate
-        self.learning_rate=0.001
+        self.learning_rate=1e-6
 
 
         self.noise_stddev = 0.3
-        self.batch_size=64
+        self.batch_size=128
         self.y_dim=1
         self.image_size=128
         self.image_shape=[128, 128, 1]

@@ -396,6 +396,6 @@ def get_sample_zs(model):
     assert sample_zs.shape[0] == model.sample_size
     return sample_zs
 
-def reparameterize(mu, sigma):
-    epsilon = tf.random_normal(tf.shape(sigma), name="epsilon")
-    return mu + epsilon * sigma
+def reparameterize(mu, logvar):
+    epsilon = tf.random_normal(tf.shape(logvar), name="epsilon")
+    return mu + epsilon * tf.exp(0.5 * logvar)
