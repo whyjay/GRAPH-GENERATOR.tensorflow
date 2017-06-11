@@ -26,16 +26,8 @@ def train(model, sess):
 
             image = dataset.next_batch(model.batch_size)
             image = np.reshape(image, [model.batch_size, model.image_shape[0], model.image_shape[1], 1])
-            kl, rec, rec1, rec2, image_, h, _, summary = sess.run([model.kl_div, model.recon_loss, model.rec1, model.rec2, model.image_, model.h, optim, merged_sum], feed_dict={model.image:image})
+            kl, rec, _, summary = sess.run([model.kl_div, model.recon_loss, optim, merged_sum], feed_dict={model.image:image})
             model.writer.add_summary(summary, idx)
-
-            img_min = image_.min()
-            img_max = image_.max()
-            img_avg = image_.mean()
-            h_min = h.min()
-            h_max = h.max()
-            h_avg = h.mean()
-            h_nan = np.isnan(h).sum()
 
             # save checkpoint
             if (idx*model.batch_size) % N < model.batch_size:
@@ -46,9 +38,7 @@ def train(model, sess):
                 _save_samples(model, sess, epoch, dataset)
                 model.save(sess, model.checkpoint_dir, epoch)
 
-                print '[Epoch %(epoch)d] time: %(total_time)4.4f, sec_per_epoch: %(sec_per_epoch)4.4f, kl-loss: %(kl)4.4f, recon-loss: %(rec)4.4f'+\
-                'rec1: %(rec1)4.4f, rec2: %(rec2)4.4f, image_min: %(img_min)4.4f, image_max: %(img_max)4.4f, image_avg: %(img_avg)4.4f'+\
-                    'h_min: %(h_min)4.4f, h_max: %(h_max)4.4f, h_avg: %(h_avg)4.4f, h_nan: %(h_nan)4.4f' % locals()
+                print '[Epoch %(epoch)d] time: %(total_time)4.4f, sec_per_epoch: %(sec_per_epoch)4.4f, kl-loss: %(kl)4.4f, recon-loss: %(rec)4.4f' % locals()
 
     except tf.errors.OutOfRangeError:
         print "Done training; epoch limit reached."

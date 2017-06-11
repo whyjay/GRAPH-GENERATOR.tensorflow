@@ -7,9 +7,8 @@ from ops import *
 from utils import *
 
 from models.build_model import build_model
-from models.generator import *
-from models.discriminator import *
 from models.train import train
+from models.generator import *
 #from models.evaluate import evaluate
 from utils import pp, visualize, to_json
 
@@ -18,7 +17,6 @@ from IPython import embed
 class Config(object):
     def __init__(self, FLAGS):
         timestamp = str(int(time.time()))
-        self.exp_num = str(FLAGS.exp)
         self.dataset = FLAGS.dataset
         self.dataset_path = os.path.join("/data2/whyjay/sna_data", self.dataset)
         self.devices = ["gpu:0", "gpu:1", "gpu:2", "gpu:3"]
@@ -29,9 +27,9 @@ class Config(object):
         timestamp = str(int(time.time()))
 
         self.epoch = FLAGS.epoch
-        self.log_dir = os.path.join('logs', self.exp_num, timestamp)
-        self.checkpoint_dir = os.path.join('checkpoint', self.exp_num, timestamp)
-        self.sample_dir = os.path.join('samples', self.exp_num, timestamp)
+        self.log_dir = os.path.join('logs', timestamp)
+        self.checkpoint_dir = os.path.join('checkpoint', timestamp)
+        self.sample_dir = os.path.join('samples', timestamp)
         self.timestamp = timestamp
 
         self.encoder_name = 'base_g_xz'
@@ -45,10 +43,8 @@ class Config(object):
         self.loss = FLAGS.loss
 
         # Learning rate
-        self.learning_rate=1e-10
+        self.learning_rate=1e-3
 
-
-        self.noise_stddev = 0.3
         self.batch_size=64
         self.y_dim=1
         self.image_size=128
